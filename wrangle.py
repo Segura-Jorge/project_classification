@@ -73,6 +73,7 @@ def get_telco_data():
         df.to_csv(filename)
     return df
     
+    
 
 def split_data_telco(df):
     seed = 3333
@@ -85,6 +86,19 @@ def split_data_telco(df):
                                   stratify = train.churn,
                                   random_state=seed)
     return train, validate, test
+
+def split_data_telco2(df):
+    seed = 3333
+    train, test = train_test_split(df,
+                               train_size = 0.8,
+                               stratify = df.churn_encoded,
+                               random_state=seed)
+    train, validate = train_test_split(train,
+                                  train_size = 0.75,
+                                  stratify = train.churn_encoded,
+                                  random_state=seed)
+    return train, validate, test
+
 
 
 def prep_telco_data(df):
@@ -121,11 +135,9 @@ def prep_telco_data(df):
     # Concatenate dummy dataframe to original 
     df = pd.concat([df, dummy_df], axis=1)
     # Drop columns replaced with dummy_df.
-    df.drop(columns=['multiple_lines', 'online_security', 'online_backup', 'device_protection',
-                     'tech_support', 'streaming_tv', 'streaming_movies', 'contract_type',
-                     'internet_service_type', 'payment_type'], inplace=True)
+    df = df.drop(columns=['gender', 'partner', 'dependents', 'phone_service', 'paperless_billing', 'churn','multiple_lines', 'online_security', 'online_backup', 'device_protection','tech_support', 'streaming_tv', 'streaming_movies', 'contract_type', 'internet_service_type', 'payment_type'])
     
     # Ensure the split_data_telco function is available
-    train, validate, test = split_data_telco(df)
+    train, validate, test = split_data_telco2(df)
     
     return train, validate, test
