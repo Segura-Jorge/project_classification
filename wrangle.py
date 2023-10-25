@@ -88,15 +88,21 @@ def split_data_telco(df):
 
 
 def prep_telco_data(df):
+    # Ensure necessary libraries are imported
+    import pandas as pd
+    
     # Drop duplicate columns
-    df.drop(columns=['payment_type_id', 'internet_service_type_id', 'contract_type_id', 'customer_id'], inplace=True)
-       
+    cols_to_drop = ['Unnamed:0', 'payment_type_id', 'internet_service_type_id', 'contract_type_id', 'customer_id']
+    df.drop(columns=[col for col in cols_to_drop if col in df.columns], inplace=True)
+
+    
     # Drop null values stored as whitespace    
-    df['total_charges'] = df['total_charges'].str.strip()
     df = df[df.total_charges != '']
     
     # Convert to correct datatype
     df['total_charges'] = df.total_charges.astype(float)
+    # Use df instead of telco
+    df['avg_tenure_charges'] = (df['total_charges'] / df['tenure']).round(2)
     
     # Convert binary categorical variables to numeric
     df['gender_encoded'] = df.gender.map({'Female': 1, 'Male': 0})
@@ -107,22 +113,19 @@ def prep_telco_data(df):
     df['churn_encoded'] = df.churn.map({'Yes': 1, 'No': 0})
     
     # Get dummies for non-binary categorical variables
-    dummy_df = pd.get_dummies(df[['multiple_lines', \
-                              'online_security', \
-                              'online_backup', \
-                              'device_protection', \
-                              'tech_support', \
-                              'streaming_tv', \
-                              'streaming_movies', \
-                              'contract_type', \
-                              'internet_service_type', \
-                              'payment_type']], dummy_na=False, \
-                              drop_first=True)
+    dummy_df = pd.get_dummies(df[['multiple_lines', 'online_security', 'online_backup', 
+                                  'device_protection', 'tech_support', 'streaming_tv', 
+                                  'streaming_movies', 'contract_type', 'internet_service_type', 
+                                  'payment_type']], dummy_na=False, drop_first=True)
     
     # Concatenate dummy dataframe to original 
     df = pd.concat([df, dummy_df], axis=1)
+    # Drop columns replaced with dummy_df.
+    df.drop(columns=['multiple_lines', 'online_security', 'online_backup', 'device_protection',
+                     'tech_support', 'streaming_tv', 'streaming_movies', 'contract_type',
+                     'internet_service_type', 'payment_type'], inplace=True)
     
-    # split the data
-    train, validate, test = split_telco_data(df)
+    # Ensure the split_data_telco function is available
+    train, validate, test = split_data_telco(df)
     
     return train, validate, test
