@@ -2,12 +2,26 @@
 
 import pandas as pd
 import numpy as np
+from pydataset import data
+
+#stats
+from scipy import stats
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+import sklearn.preprocessing
+from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import MinMaxScaler
 from sklearn import preprocessing
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
+
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, ConfusionMatrixDisplay
+
 import scipy as sp
 from pydataset import data
 from env import user, password, host
@@ -15,10 +29,10 @@ from env import user, password, host
 import warnings
 warnings.filterwarnings("ignore")
 
+import wrangle as w
 import os
 directory = os.getcwd()
 seed = 3333
-
 
 ## FUNCTIONS ##
 ##-------------------------------------------------------------------##
@@ -106,12 +120,12 @@ def prep_telco_data(df):
     import pandas as pd
     
     # Drop duplicate columns
-    cols_to_drop = ['Unnamed:0', 'payment_type_id', 'internet_service_type_id', 'contract_type_id', 'customer_id']
+    cols_to_drop = ['Unnamed: 0', 'payment_type_id', 'internet_service_type_id', 'contract_type_id', 'customer_id']
     df.drop(columns=[col for col in cols_to_drop if col in df.columns], inplace=True)
 
     
     # Drop null values stored as whitespace    
-    df = df[df.total_charges != '']
+    df = df[df.total_charges != ' ']
     
     # Convert to correct datatype
     df['total_charges'] = df.total_charges.astype(float)
